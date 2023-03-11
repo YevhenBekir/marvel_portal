@@ -1,25 +1,40 @@
-class MarvelService {
-    _apiBase = 'https://gateway.marvel.com:443/v1/public/';
-    // ЗДЕСЬ БУДЕТ ВАШ КЛЮЧ, ЭТОТ КЛЮЧ МОЖЕТ НЕ РАБОТАТЬ
-    _apiKey = 'apikey=c5d6fc8b83116d92ed468ce36bac6c62';
+const _apiBase = 'https://gateway.marvel.com:443/v1/public/';
+const _apiKey = 'apikey=d00625f910504c183dcc49764a173c62';
+const apiLimit = `limit=9`;
+const apiOffset = 'offset=573';
 
-    getResource = async (url) => {
+class MarvelService {
+    getResources = async(url = '') => {
         let res = await fetch(url);
-    
-        if (!res.ok) {
+
+        if(!res.ok){
             throw new Error(`Could not fetch ${url}, status: ${res.status}`);
         }
-    
+
         return await res.json();
+    };
+
+    getAllCharacters = async () => {
+        const res = await this.getResources(`${_apiBase}characters?${apiLimit}&${apiOffset}&${_apiKey}`);
+        return res.data.results.map(this._transformCharacter);
     }
 
-    getAllCharacters = () => {
-        return this.getResource(`${this._apiBase}characters?limit=9&offset=210&${this._apiKey}`);
+    getOneCharacter = async (id) => {
+        const res = await this.getResources(`${_apiBase}characters/${id}?${_apiKey}`);
+        return this._transformCharacter(res.data.results[0]);
     }
 
-    getCharacter = (id) => {
-        return this.getResource(`${this._apiBase}characters/${id}?${this._apiKey}`);
-    }
-}
+    _transformCharacter = (char) => {
+        return {
+            id: char.id,
+            name: char.name,
+            description: char.description ? `${char.description.slice(0, 210)}...` : 'There is no description for this character',
+            thumbnail: `${char.thumbnail.path}.${char.thumbnail.extension}`,
+            homepage: char.urls[0].url,
+            wiki: char.urls[1].url
+        }
+    };
+
+};
 
 export default MarvelService;
