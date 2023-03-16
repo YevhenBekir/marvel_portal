@@ -6,9 +6,9 @@ class ErrorBoundary extends Component {
         error: false
     }
 
-    static getDerivedStateFromError(error){                 //Метод, який ТІЛЬКИ оновлює state
-        return ({error: true})                              //Повертає об'єкт, який оновлює state
-    }
+    // static getDerivedStateFromError(error){                 //Метод, який ТІЛЬКИ оновлює state
+    //     return ({error: true})                              //Повертає об'єкт, який оновлює state
+    // }
 
     componentDidCatch(err, info){
         console.log(err, info)
