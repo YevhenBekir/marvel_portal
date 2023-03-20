@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState } from 'react';
 
 import AppHeader from "../appHeader/AppHeader";
 import RandomChar from "../randomChar/RandomChar";
@@ -8,38 +8,59 @@ import ErrorBoundary from '../errorBoundary/ErrorBoundary';
 
 import decoration from '../../resources/img/vision.png';
 
-class App extends Component {
-    state = {
-        selectedChar: null
+import '../../style/style.scss';
+
+const App = () => {
+    const [selectedChar, setSelectedChar] = useState(null)
+    const [view, setView] = useState(true)
+    const [autoUpdater, setAutoUpdater] = useState(false)
+
+    const onCharSelected = (id) => {
+        setSelectedChar(id)
     }
 
-    onCharSelected = (id) => {
-        this.setState({
-            selectedChar: id
-        })
+    const onChangeView = () => {
+        setView( view => !view);
     }
 
-    render(){
-        return (
-            <div className="app">
-                <AppHeader/>
-                <main>
+    const onChangeAutoUpdater = () => {
+        setAutoUpdater(autoUpdater => !autoUpdater)
+    }
+
+    return (
+        <div className="app">
+            <AppHeader/>
+            <main>
+                <ErrorBoundary>
+                    {view ? <RandomChar autoUpdater={autoUpdater}/> : null}
+                    <Buttons onChangeAutoUpdater={onChangeAutoUpdater} onChangeView={onChangeView}/>
+                </ErrorBoundary>
+                <div className="char__content">
                     <ErrorBoundary>
-                        <RandomChar/>
+                        <CharList onCharSelected={onCharSelected}/>
                     </ErrorBoundary>
-                    <div className="char__content">
-                        <ErrorBoundary>
-                            <CharList onCharSelected={this.onCharSelected}/>
-                        </ErrorBoundary>
-                        <ErrorBoundary>
-                            <CharInfo charId={this.state.selectedChar}/>
-                        </ErrorBoundary>
-                    </div>
-                    <img className="bg-decoration" src={decoration} alt="vision"/>
-                </main>
-            </div>
-        )
-    }
+                    <ErrorBoundary>
+                        <CharInfo charId={selectedChar}/>
+                    </ErrorBoundary>
+                </div>
+                <img className="bg-decoration" src={decoration} alt="vision"/>
+            </main>
+        </div>
+    )
+}
+
+const Buttons = ({onChangeAutoUpdater, onChangeView}) => {
+    return(
+        <div
+            style={{display: 'flex', justifyContent: 'space-around', marginTop: '15px'}}>
+            <button onClick={onChangeAutoUpdater} className="button button__main">
+                <div className="inner">Turn on/off the auto-updater</div>
+            </button>
+            <button onClick={onChangeView} className="button button__secondary">
+                <div className="inner">Hide/show random selection</div>
+            </button>
+        </div>
+    )
 }
 
 export default App;

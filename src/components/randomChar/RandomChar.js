@@ -1,4 +1,4 @@
-import { Component } from 'react';
+import { useState, useEffect } from 'react';
 
 import MarvelService from '../../services/MarvelService'
 import Spinner from '../spinner/Spinner';
@@ -7,56 +7,64 @@ import mjolnir from '../../resources/img/mjolnir.png';
 
 import './randomChar.scss';
 
-class RandomChar extends Component{
-    state = {
-        char: {},
-        loading: true,
-        error: false
-    }
+const RandomChar = (props) => {
 
-    marvelService = new MarvelService();
+    const [char, setChar] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(false);
 
-    updateChar = () => {
+    const marvelService = new MarvelService();
+
+    const updateChar = () => {
+        //вичислення діапазону персонажів
         const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000 );
-        this.marvelService.getOneCharacter(id)
-            .then(this.onCharLoaded)
-            .catch(this.onErrorChar);
+
+        //для перевірки на підписку
+        console.log('component was update')
+
+        setLoading(true);
+        setError(false);
+
+        marvelService.getOneCharacter(id)
+            .then(onCharLoaded)
+            .catch(onErrorChar);
     };
 
-    onCharLoaded = (char) => {
-        this.setState({
-            char,                       /*  this.setState({char зі стану: char із аргументу})  */
-            loading: false})
+    const onCharLoaded = (char) => {
+        setChar(char);
+        setLoading(false);
     };
 
-    onClickChangeChar = () => {
-        this.setState({
-            error: false,
-            loading: true});
-        this.updateChar();
+    const onClickChangeChar = () => {
+        setError(false);
+        setLoading(true);
+
+        updateChar();
     };
 
-    onErrorChar = () => {
-        this.setState({
-            loading: false,
-            error: true
-        })
+    const onErrorChar = () => {
+        setError(true);
+        setLoading(false);
+
+        if(!props.autoUpdater) setTimeout(updateChar, 3000);
     }
 
 
 
-    componentDidMount(){
-        this.updateChar();
-        // this.timerId = setInterval(this.updateChar, 3000);
-    }
-    componentWillUnmount(){
-        clearInterval(this.timerId);
-    }
+    useEffect(() => {
+        updateChar();
+    }, []);
+
+    useEffect(() => {
+        const timerId = props.autoUpdater ? setInterval(updateChar, 3000) : null;
+
+        return () => {
+            clearInterval(timerId);
+        };
+    }, [props.autoUpdater])
 
 
 
-    render(){
-        const {char, loading, error} = this.state;
         const errorMessage = error ? <ErrorMessage/> : null;
         const spinner = loading ? <Spinner/> : null;
         const content = !(loading || error) ? <View char={char}/> : null;
@@ -76,14 +84,13 @@ class RandomChar extends Component{
                     </p>
                     <button 
                         className="button button__main"
-                        onClick={() => this.onClickChangeChar()}>
+                        onClick={() => onClickChangeChar()}>
                         <div className="inner">try it</div>
                     </button>
                     <img src={mjolnir} alt="mjolnir" className="randomchar__decoration"/>
                 </div>
             </div>
         )
-    }
 }
 
 const View = ({char}) => {
@@ -93,8 +100,8 @@ const View = ({char}) => {
         <div className="randomchar__block">
             <img
                 src={thumbnail}
-                style={thumbnail==='http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg' ? {objectFit: 'contain'} : {objectFit: 'cover'}}
-                alt="Random character"
+                style={thumbnail === 'http://i.annihil.us/u/prod/marvel/i/mg/b/40/image_not_available.jpg' ? {objectFit: 'contain'} : {objectFit: 'cover'}}
+                alt={name + '.jpg'}
                 className="randomchar__img"/>
             <div className="randomchar__info">
                 <p className="randomchar__name">{name}</p>
