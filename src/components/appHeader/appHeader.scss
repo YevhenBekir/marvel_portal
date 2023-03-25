@@ -22,9 +22,12 @@
             line-height: 32px;
             li {
                 margin: 0 8px;
-                a:hover {
+                :hover {
                     color: $main-color;
                 }
+                // :focus {
+                //     color: $main-color;
+                // }
             }
         }
     }
