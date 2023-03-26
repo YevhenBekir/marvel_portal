@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 
 import uw from '../../resources/img/UW.png';
 import xMen from '../../resources/img/x-men.png';
@@ -49,12 +50,12 @@ const ComicsList = () => {
             return (
                 <li 
                     className="comics__item"
-                    key={comic.id}>
-                    <a href="none">
+                    key={i}>
+                    <Link to={`/comics/${comic.id}`}>
                         <img src={comic.thumbnail} alt={comic.title} className="comics__item-img" style={{imgStyle}}/>
                         <div className="comics__item-name">{comic.title}</div>
                         <div className="comics__item-price">{comic.price === 0 ? 'NOT AVAILABLE' : `${comic.price}$`}</div>
-                    </a>
+                    </Link>
                 </li>
             )
         })

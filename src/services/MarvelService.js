@@ -3,23 +3,23 @@ import { useHttp } from '../hooks/http.hook'
 const useMarvelService = () => {
     const {loading, error, request, clearError} = useHttp();
 
+    const _api = 'https://gateway.marvel.com:443/v1/public/';
     const _apiKey = 'apikey=d00625f910504c183dcc49764a173c62';
-    const _apiChar = 'https://gateway.marvel.com:443/v1/public/';
     const _charLimit = 9;
     const _charOffset = 0;
-    const _apiComics = 'https://gateway.marvel.com:443/v1/public/comics';
+
     const _comicsLimit = 8;
     const _comicsOffset = 0;
 
 
 
     const getAllCharacters = async (offset = _charOffset) => {
-        const res = await request(`${_apiChar}characters?limit=${_charLimit}&offset=${offset}&${_apiKey}`);
+        const res = await request(`${_api}characters?limit=${_charLimit}&offset=${offset}&${_apiKey}`);
         return res.data.results.map(_transformCharacter);
     }
 
     const getOneCharacter = async (id) => {
-        const res = await request(`${_apiChar}characters/${id}?${_apiKey}`);
+        const res = await request(`${_api}characters/${id}?${_apiKey}`);
         return _transformCharacter(res.data.results[0]);
     }
 
@@ -39,24 +39,27 @@ const useMarvelService = () => {
 
 
     const getAllComics = async (offset = _comicsOffset) => {
-        const res = await request(`${_apiComics}?issueNumber=15?orderBy=issueNumber&limit=${_comicsLimit}&offset=${offset}&${_apiKey}`);
+        const res = await request(`${_api}comics?issueNumber=15?orderBy=issueNumber&limit=${_comicsLimit}&offset=${offset}&${_apiKey}`);
+
         return res.data.results.map(_transformComics);
     }
 
+    
     const getOneComic = async (id) => {
-        const res = await request(`${_apiComics}/${id}?${_apiKey}`);
-        return _transformComics(res.data.results)
+        const res = await request(`${_api}comics/${id}?${_apiKey}`);
+        
+        return _transformComics(res.data.results[0])
     }
+    
+    const _transformComics = (comic) => {
 
-    const _transformComics = (comics) => {
         return {
-            id: comics.id,
-            title: comics.title,
-            description: comics.description,
-            thumbnail: `${comics.thumbnail.path}.${comics.thumbnail.extension}`,
-            pageCount: comics.pageCount,
-            language: comics.textObjects.language,
-            price: comics.prices[0].price,
+            id: comic.id,
+            title: comic.title,
+            description: comic.description,
+            thumbnail: `${comic.thumbnail.path}.${comic.thumbnail.extension}`,
+            pageCount: comic.pageCount + ' p.',
+            price: comic.prices[0].price > 0 ? comic.prices[0].price + ' $' : 'NOT AVAILABLE',
         }
     }
     return{loading, error, clearError, getAllCharacters, getOneCharacter, getAllComics, getOneComic};

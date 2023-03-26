@@ -58,6 +58,13 @@ input::-webkit-inner-spin-button {
         bottom: -70px;
         z-index: -1;
     }
+    .page_404{
+        margin: 0 auto;
+        p{
+            margin-top: 30px;
+            text-transform: uppercase;
+        }
+    }
 }
 
 main {
